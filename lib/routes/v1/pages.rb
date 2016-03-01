@@ -1,3 +1,5 @@
+require 'digest/sha1'
+
 module PageConfig
   module Routes
     module V1
@@ -22,10 +24,12 @@ module PageConfig
 
         get '/pages/?' do
           pages = Page.order(updated_at: :desc)
+          set_cache_headers(pages)
           PageRepresenter.for_collection.prepare(pages).to_json
         end
 
         get '/pages/:name/?' do
+          set_cache_headers(@page)
           PageRepresenter.prepare(@page).to_json
         end
 
@@ -60,6 +64,14 @@ module PageConfig
 
         def msg(message)
           {msg: message}.to_json
+        end
+
+        def set_cache_headers(resource)
+          resource = resource.first if resource.is_a?(ActiveRecord::Relation)
+          return if resource.nil?
+          cache_control :public, :must_revalidate
+          last_modified resource.updated_at
+          etag Digest::SHA1.hexdigest(resource.inspect)
         end
 
       end

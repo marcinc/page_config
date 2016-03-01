@@ -90,6 +90,14 @@ RSpec.describe PageConfig::Api::V1 do
         expect(last_response.body).to eq expected_output
         expect(last_response.status).to eq 200
       end
+
+      it "sets ETag, Last-Modified and Cache-Control headers" do
+        get "/pages"
+
+        expect(last_response.header["Cache-Control"]).to eq "public, must-revalidate"
+        expect(last_response.header["Last-Modified"]).to_not be_empty
+        expect(last_response.header["ETag"]).to_not be_empty
+      end
     end
   end
 
@@ -126,6 +134,15 @@ RSpec.describe PageConfig::Api::V1 do
         expect(last_response.body).to eq expected_output
         expect(last_response.status).to eq 200
       end
+
+      it "sets ETag, Last-Modified and Cache-Control headers" do
+        get "/pages/foo"
+
+        expect(last_response.header["Cache-Control"]).to eq "public, must-revalidate"
+        expect(last_response.header["Last-Modified"]).to_not be_empty
+        expect(last_response.header["ETag"]).to_not be_empty
+      end
+
     end
 
   end
