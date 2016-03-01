@@ -12,6 +12,7 @@ $: << File.expand_path('../lib', __FILE__)
 
 require 'models'
 require 'representers'
+require 'routes'
 
 module PageConfig
   module Api 
@@ -41,5 +42,8 @@ module PageConfig
       end
     end
 
+    class V1 < Base
+      use Routes::V1::Pages
+    end
   end
 end
