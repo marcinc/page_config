@@ -7,6 +7,12 @@ Bundler.require(Sinatra::Base.environment)
 require "sinatra/reloader" if development?
 require "sinatra/activerecord"
 
+$: << File.expand_path('../', __FILE__)
+$: << File.expand_path('../lib', __FILE__)
+
+require 'models'
+require 'representers'
+
 module PageConfig
   module Api 
     class Base < Sinatra::Base
