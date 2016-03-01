@@ -211,4 +211,17 @@ RSpec.describe PageConfig::Api::V1 do
 
   end
 
+  describe 'DELETE /pages/foo' do
+    let(:page) { Page.create(name: 'foo', config: {key0: 'val0'}) }
+    
+    it "removes existing page configuration" do
+      allow(Page).to receive(:find_by).with(name: 'foo') { page }
+      expect(page).to receive(:delete)
+
+      delete '/pages/foo'
+
+      expect(last_response.status).to eq 204
+    end
+  end
+
 end

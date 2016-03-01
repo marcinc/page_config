@@ -51,6 +51,11 @@ module PageConfig
           status 204
         end
 
+        delete '/pages/:name' do
+          @page.delete
+          status 204
+        end
+
         private
 
         def msg(message)
