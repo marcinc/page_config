@@ -6,6 +6,9 @@ gem 'sinatra'
 gem 'sinatra-contrib'
 gem "sinatra-activerecord"
 
+gem 'roar'
+gem 'multi_json'
+
 gem 'thin'
 gem "sqlite3"
 gem 'racksh'
