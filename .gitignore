@@ -34,3 +34,7 @@ build/
 
 # unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
 .rvmrc
+
+# SQLite
+page_config.sqlite3
+page_config_test.sqlite3
