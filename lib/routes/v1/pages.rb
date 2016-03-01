@@ -42,6 +42,15 @@ module PageConfig
           status 201
         end
 
+        put '/pages/:name/?' do
+          config = ::MultiJson.decode(request.body)
+          if params[:name] != config.delete('id')
+            halt 409, msg("Page identifier mismatch. Resource ID and configuration page ID are different.")
+          end
+          @page.update(config: config)
+          status 204
+        end
+
         private
 
         def msg(message)

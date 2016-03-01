@@ -170,4 +170,45 @@ RSpec.describe PageConfig::Api::V1 do
 
   end
 
+  describe 'PUT /pages/foo' do
+    let(:page) { Page.create(name: 'foo', config: {key0: 'val0'}) }
+
+    context "when there is a mismatch between update resource ID and page ID in new configuration" do
+      let(:new_config) do
+        {
+          id: 'bar',
+          val1: 'key1'
+        }.to_json
+      end
+
+      it "raturns 409 with appropriate message" do
+        allow(Page).to receive(:find_by).with(name: 'foo') { page }
+
+        put '/pages/foo', new_config
+
+        expect(last_response.body).to eq({msg: "Page identifier mismatch. Resource ID and configuration page ID are different."}.to_json)
+        expect(last_response.status).to eq 409
+      end
+    end
+
+    context "for valid new configuration" do
+      let(:new_config) do
+        {
+          id: 'foo',
+          val1: 'key1'
+        }.to_json
+      end
+
+      it "updates existing config and returns 204" do
+        allow(Page).to receive(:find_by).with(name: 'foo') { page }
+        expect(page).to receive(:update).with(config: {'val1' => 'key1'})
+
+        put '/pages/foo', new_config
+
+        expect(last_response.status).to eq 204
+      end
+    end
+
+  end
+
 end
