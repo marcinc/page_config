@@ -130,4 +130,44 @@ RSpec.describe PageConfig::Api::V1 do
 
   end
 
+  describe "POST /pages" do
+    let(:configuration) do
+      {id: 'pageid', val1: 'val1', val2: 'val2'}.to_json
+    end
+
+    context "when configuration already exist for given page" do
+      before do
+        post "/pages", configuration
+      end
+
+      it "returns 409 with appropriate message" do
+        post "/pages", configuration
+
+        expect(last_response.body).to eq({msg: "Page configuration already exist."}.to_json)
+        expect(last_response.status).to eq 409
+      end
+    end
+
+    context "when there was an exception during configuration creation" do
+      it "return 500 with appropriate message" do
+        allow(Page).to receive(:create!).and_raise(ActiveRecord::StatementInvalid, "error desc")
+
+        post "/pages", {key1: 'val1'}.to_json
+
+        expect(last_response.body).to eq({msg: "Resource could't be created."}.to_json)
+        expect(last_response.status).to eq 500
+      end
+    end
+
+    context "when there was no errors" do
+      it "creates a new configuration and sets Location header" do
+        post "/pages", configuration
+
+        expect(last_response.header["Location"]).to eq "/pages/pageid"
+        expect(last_response.status).to eq 201
+      end
+    end
+
+  end
+
 end

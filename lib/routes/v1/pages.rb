@@ -29,6 +29,19 @@ module PageConfig
           PageRepresenter.prepare(@page).to_json
         end
 
+        post '/pages/?' do
+          config = ::MultiJson.decode(request.body)
+          begin
+            page_config = Page.create!(name: config.delete('id'), config: config)
+          rescue ActiveRecord::RecordNotUnique => e
+            halt 409, msg("Page configuration already exist.")
+          rescue => e
+            halt 500, msg("Resource could't be created.")
+          end
+          response.headers['Location'] = "/pages/#{page_config.name}"
+          status 201
+        end
+
         private
 
         def msg(message)
