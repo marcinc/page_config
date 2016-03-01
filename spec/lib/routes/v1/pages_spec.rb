@@ -28,6 +28,34 @@ RSpec.describe PageConfig::Api::V1 do
       expect(last_response.status).to eq 200
     end
 
+    context "when page identifier is in the path" do
+      let(:identifier) { "foo1" }
+
+      context "and resource present" do
+        before do
+          Page.create(name: "foo1", config: {key1: "val1"})
+        end
+
+        it "retrieves page object based on that ID" do
+          expect(Page).to receive(:find_by).with(name: identifier).and_call_original
+          
+          get "/pages/#{identifier}"
+
+          expect(last_response.status).to eq 200
+        end
+      end
+
+      context "and resource doesn't exist" do
+        it "returns 404 with appropriate message" do
+          expect(Page).to receive(:find_by).with(name: identifier) { nil }
+
+          get "/pages/#{identifier}"
+          
+          expect(last_response.status).to eq 404
+        end
+      end
+    end
+
   end
 
   describe "GET /pages" do
@@ -63,6 +91,43 @@ RSpec.describe PageConfig::Api::V1 do
         expect(last_response.status).to eq 200
       end
     end
+  end
+
+  describe "GET /pages/foo" do
+
+    context "when there is no resource of this ID" do
+      it "returns 404 with appropriate message" do
+        get "/pages/foo"
+
+        expect(last_response.body).to eq({msg: "Resource doesn't exist."}.to_json)
+        expect(last_response.status).to eq 404
+      end
+    end
+
+    context "when configuration for given page ID exists" do
+      before do
+        Page.create(name: "foo", config: {key1: "val1"})
+      end
+
+      let(:expected_output) do
+        {
+          page: {
+            id: "foo",
+            config: {
+              key1: "val1"
+            }
+          }
+        }.to_json
+      end
+
+      it "returns requested configuration" do
+        get "/pages/foo"
+
+        expect(last_response.body).to eq expected_output
+        expect(last_response.status).to eq 200
+      end
+    end
+
   end
 
 end

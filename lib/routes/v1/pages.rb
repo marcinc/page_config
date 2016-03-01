@@ -13,9 +13,20 @@ module PageConfig
           content_type 'application/json'
         end
 
+        before do
+          page_identifier = request.path_info.split('/')[2]
+          pass unless page_identifier
+          @page = Page.find_by(name: page_identifier)
+          halt 404, msg("Resource doesn't exist.") if @page.nil?
+        end
+
         get '/pages/?' do
           pages = Page.order(updated_at: :desc)
           PageRepresenter.for_collection.prepare(pages).to_json
+        end
+
+        get '/pages/:name/?' do
+          PageRepresenter.prepare(@page).to_json
         end
 
         private
